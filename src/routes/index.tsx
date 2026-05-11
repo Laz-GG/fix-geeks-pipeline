@@ -35,6 +35,7 @@ function Index() {
   const [seguimientos, setSeguimientos] = useState<Seguimiento[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Prospecto | null>(null);
+  const [initialTab, setInitialTab] = useState<string>("datos");
   const [view, setView] = useState("hoy");
 
   // list filters
@@ -62,8 +63,8 @@ function Index() {
     if (updates) setProspectos(prev => prev.map(p => p.id === s.prospecto_id ? { ...p, ...updates } : p));
   };
 
-  const openNew = () => { setEditing(null); setOpen(true); };
-  const openEdit = (p: Prospecto) => { setEditing(p); setOpen(true); };
+  const openNew = () => { setEditing(null); setInitialTab("datos"); setOpen(true); };
+  const openEdit = (p: Prospecto, tab: string = "datos") => { setEditing(p); setInitialTab(tab); setOpen(true); };
 
   const copiarMensaje = async (p: Prospecto) => {
     await navigator.clipboard.writeText(buildMensaje(p));
@@ -199,7 +200,13 @@ function Index() {
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {contactarHoy.map(p => (
-                    <ContactarCard key={p.id} p={p} onEdit={() => openEdit(p)} onCopy={() => copiarMensaje(p)} />
+                    <ContactarCard
+                      key={p.id}
+                      p={p}
+                      onEdit={() => openEdit(p, "datos")}
+                      onSeguimiento={() => openEdit(p, "historial")}
+                      onCopy={() => copiarMensaje(p)}
+                    />
                   ))}
                 </div>
               )}
@@ -304,6 +311,7 @@ function Index() {
         onClose={() => setOpen(false)}
         prospecto={editing}
         seguimientos={seguimientos}
+        initialTab={initialTab}
         onSave={upsert}
         onAddSeguimiento={addSeguimiento}
       />
@@ -331,7 +339,7 @@ function CanalCard({ icon, label, value, color }: { icon: React.ReactNode; label
   );
 }
 
-function ContactarCard({ p, onEdit, onCopy }: { p: Prospecto; onEdit: () => void; onCopy: () => void }) {
+function ContactarCard({ p, onEdit, onSeguimiento, onCopy }: { p: Prospecto; onEdit: () => void; onSeguimiento: () => void; onCopy: () => void }) {
   return (
     <Card className="p-4 hover:shadow-md transition-shadow border-l-4 border-l-primary">
       <div className="flex items-start justify-between gap-3 mb-2">
@@ -368,7 +376,7 @@ function ContactarCard({ p, onEdit, onCopy }: { p: Prospecto; onEdit: () => void
       )}
       <div className="flex gap-2">
         <Button size="sm" onClick={onEdit} className="gap-1 flex-1"><Pencil className="h-3 w-3" /> Ver / editar</Button>
-        <Button size="sm" variant="outline" onClick={onEdit} className="gap-1"><Plus className="h-3 w-3" /> Seguimiento</Button>
+        <Button size="sm" variant="outline" onClick={onSeguimiento} className="gap-1"><Plus className="h-3 w-3" /> Seguimiento</Button>
         <Button size="sm" variant="outline" onClick={onCopy} title="Copiar mensaje"><Copy className="h-4 w-4" /></Button>
       </div>
     </Card>
