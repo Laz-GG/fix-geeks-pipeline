@@ -145,11 +145,12 @@ export function isContactarHoy(p: Prospecto): boolean {
 
 // Migración para datos viejos sin campos nuevos
 function migrate(p: Partial<Prospecto> & { id: string }): Prospecto {
+  const base = p as Prospecto;
   return {
-    tipo_captura: "nuevo",
-    accion_personalizada: null,
-    comentario_ultima_accion: null,
-    ...(p as Prospecto),
+    ...base,
+    tipo_captura: base.tipo_captura ?? "nuevo",
+    accion_personalizada: base.accion_personalizada ?? null,
+    comentario_ultima_accion: base.comentario_ultima_accion ?? null,
   };
 }
 
